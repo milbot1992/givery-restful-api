@@ -13,7 +13,7 @@ class Recipe(MethodView):
     @blp.response(200, RecipeSchema)
     def get(self, recipe_id):
         recipe = RecipeModel.query.get_or_404(recipe_id)
-        return recipe
+        return {"message": "Recipe retrieved successfully.", "recipe": recipe}
 
     def delete(self, recipe_id):
         recipe = RecipeModel.query.get_or_404(recipe_id)
@@ -36,6 +36,7 @@ class Recipe(MethodView):
 class RecipeList(MethodView):
     @blp.response(200, RecipeSchema(many=True))
     def get(self):
+        print('>>>allrecipes>>>>', RecipeModel.query.all())
         return RecipeModel.query.all()
 
     @blp.arguments(RecipeSchema)

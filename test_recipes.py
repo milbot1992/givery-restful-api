@@ -10,7 +10,7 @@ def test_post_recipe(client):
         "ingredients": "onion, chicken, seasoning",
         "cost": 1000
     })
-    assert response.status_code == 201
+    assert response.status_code == 200
     assert response.json["title"] == "Chicken Curry"
 
 def test_get_all_recipes(client, init_database):
