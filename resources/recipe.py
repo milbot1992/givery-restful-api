@@ -96,4 +96,4 @@ def recipe_post_error(e):
     return {
         "message": "Recipe creation failed!",
         "required": "title, making_time, serves, ingredients, cost"
-    }, 400
+    }, 200
