@@ -42,7 +42,7 @@ class Recipe(MethodView):
     def patch(self, recipe_data, recipe_id):
         """
         Update an existing recipe by its ID with the provided data.
-        If the recipe is not found, return an error message.
+        If the recipe is not found, an error message is returned.
         """
         print("recipe id:", recipe_id)
         try:
