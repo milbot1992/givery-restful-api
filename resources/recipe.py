@@ -4,25 +4,29 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
 from models import RecipeModel
-from schemas import RecipeSchema, RecipeUpdateSchema
+from schemas import RecipeSchema, RecipeUpdateSchema, RecipeResponseSchema, RecipeListResponseSchema
 
 blp = Blueprint("Recipes", "recipes", description="Operations on recipes")
 
 @blp.route("/recipes/<int:recipe_id>")
 class Recipe(MethodView):
-    @blp.response(200, RecipeSchema)
+    @blp.response(200, RecipeResponseSchema)
     def get(self, recipe_id):
         recipe = RecipeModel.query.get_or_404(recipe_id)
-        return {"message": "Recipe retrieved successfully.", "recipe": recipe}
+        return {
+            "message": "Recipe retrieved successfully.",
+            "recipe": recipe
+        }
 
+    @blp.response(200, RecipeResponseSchema)
     def delete(self, recipe_id):
         recipe = RecipeModel.query.get_or_404(recipe_id)
         db.session.delete(recipe)
         db.session.commit()
-        return {"message": "Recipe deleted."}, 200
+        return {"message": "Recipe deleted successfully."}
 
     @blp.arguments(RecipeUpdateSchema)
-    @blp.response(200, RecipeSchema)
+    @blp.response(200, RecipeResponseSchema)
     def patch(self, recipe_data, recipe_id):
         recipe = RecipeModel.query.get_or_404(recipe_id)
         
@@ -30,17 +34,22 @@ class Recipe(MethodView):
             setattr(recipe, key, value)
 
         db.session.commit()
-        return recipe
+        return {
+            "message": "Recipe updated successfully.",
+            "recipe": recipe
+        }
 
 @blp.route("/recipes")
 class RecipeList(MethodView):
-    @blp.response(200, RecipeSchema(many=True))
+    @blp.response(200, RecipeListResponseSchema)
     def get(self):
-        print('>>>allrecipes>>>>', RecipeModel.query.all())
-        return RecipeModel.query.all()
+        return {
+            "message": "Recipes retrieved successfully.",
+            "recipes": RecipeModel.query.all()
+        }
 
     @blp.arguments(RecipeSchema)
-    @blp.response(201, RecipeSchema)
+    @blp.response(201, RecipeResponseSchema)
     def post(self, recipe_data):
         recipe = RecipeModel(**recipe_data)
         try:
@@ -48,4 +57,7 @@ class RecipeList(MethodView):
             db.session.commit()
         except SQLAlchemyError:
             abort(500, message="An error occurred while inserting the recipe.")
-        return recipe
+        return {
+            "message": "Recipe created successfully.",
+            "recipe": recipe
+        }

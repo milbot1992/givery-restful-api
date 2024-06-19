@@ -14,3 +14,11 @@ class RecipeUpdateSchema(Schema):
     serves = fields.Str()
     ingredients = fields.Str()
     cost = fields.Int()
+
+class RecipeResponseSchema(Schema):
+    message = fields.Str()
+    recipe = fields.Nested(RecipeSchema)
+
+class RecipeListResponseSchema(Schema):
+    message = fields.Str()
+    recipes = fields.List(fields.Nested(RecipeSchema))
