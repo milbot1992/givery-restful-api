@@ -13,8 +13,10 @@ blp = Blueprint("Recipes", "recipes", description="Operations on recipes")
 class Recipe(MethodView):
     @blp.response(200, RecipeResponseSchema)
     def get(self, recipe_id):
-        if recipe_id is None:
-            recipe_id = 1
+        """
+        Retrieve a recipe by its ID.
+        If the recipe is found, return its details.
+        """
         recipe = RecipeModel.query.get_or_404(recipe_id)
         return {
             "message": "Recipe details by id",
@@ -23,6 +25,10 @@ class Recipe(MethodView):
 
     @blp.response(200, RecipeResponseSchema)
     def delete(self, recipe_id):
+        """
+        Delete a recipe by its ID.
+        If the recipe is not found, return an error message.
+        """
         try:
             recipe = RecipeModel.query.get_or_404(recipe_id)
         except NotFound:
@@ -34,6 +40,10 @@ class Recipe(MethodView):
     @blp.arguments(RecipeUpdateSchema)
     @blp.response(200, RecipeResponseSchema)
     def patch(self, recipe_data, recipe_id):
+        """
+        Update an existing recipe by its ID with the provided data.
+        If the recipe is not found, return an error message.
+        """
         print("recipe id:", recipe_id)
         try:
             recipe = RecipeModel.query.filter_by(id=recipe_id).one()
@@ -53,13 +63,22 @@ class Recipe(MethodView):
 class RecipeList(MethodView):
     @blp.response(200, RecipeListResponseSchema)
     def get(self):
+        """
+        Retrieve all recipes.
+        Return a list of all recipes in the database.
+        """
+        recipes = RecipeModel.query.all()
         return {
-            "recipes": RecipeModel.query.all()
+            "recipes": recipes
         }
 
     @blp.arguments(RecipeSchema)
     @blp.response(200, RecipePostResponseSchema)
-    def post(self, recipe_data):       
+    def post(self, recipe_data):
+        """
+        Create a new recipe with the provided data.
+        Return a success message if the recipe is created successfully.
+        """
         recipe = RecipeModel(**recipe_data)
         db.session.add(recipe)
         db.session.commit()
@@ -67,9 +86,13 @@ class RecipeList(MethodView):
             "message": "Recipe successfully created!",
             "recipe": [recipe]
         }
-    
+
 @blp.errorhandler(422)
 def recipe_post_error(e):
+    """
+    Handle validation errors for recipe creation.
+    Return a custom error message with required fields.
+    """
     return {
         "message": "Recipe creation failed!",
         "required": "title, making_time, serves, ingredients, cost"
