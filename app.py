@@ -3,7 +3,8 @@ from flask_smorest import Api
 from db import db
 import models
 from resources.recipe import blp as RecipeBlueprint
-from utils import insert_initial_data
+from resources.utils import insert_initial_data
+from flask_migrate import Migrate
 
 def create_app(db_url=None):
     app = Flask(__name__)
@@ -18,6 +19,7 @@ def create_app(db_url=None):
     app.config["PROPAGATE_EXCEPTIONS"] = True
 
     db.init_app(app)
+    migrate = Migrate(app, db)
     api = Api(app)
 
     with app.app_context():
