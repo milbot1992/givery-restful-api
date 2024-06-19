@@ -1,4 +1,3 @@
-# utils.py
 from db import db
 from models import RecipeModel
 from datetime import datetime

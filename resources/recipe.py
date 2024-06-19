@@ -3,6 +3,7 @@ from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import NotFound
 from marshmallow import ValidationError
+from sqlalchemy.orm.exc import NoResultFound
 
 from db import db
 from models import RecipeModel
@@ -27,7 +28,7 @@ class Recipe(MethodView):
         try:
             recipe = RecipeModel.query.get_or_404(recipe_id)
         except NotFound:
-            return {"message": "No recipe found"}, 404
+            return {"message": "No recipe found"}, 400
         db.session.delete(recipe)
         db.session.commit()
         return {"message": "Recipe successfully removed!"}, 200
@@ -35,9 +36,11 @@ class Recipe(MethodView):
     @blp.arguments(RecipeUpdateSchema)
     @blp.response(200, RecipeResponseSchema)
     def patch(self, recipe_data, recipe_id):
-        if recipe_id is None:
-            recipe_id = 1
-        recipe = RecipeModel.query.get_or_404(recipe_id)
+        print("recipe id:", recipe_id)
+        try:
+            recipe = RecipeModel.query.filter_by(id=recipe_id).one()
+        except NoResultFound:
+            return {"message": "No recipe found with the provided ID"}, 400
         
         for key, value in recipe_data.items():
             setattr(recipe, key, value)
@@ -58,28 +61,11 @@ class RecipeList(MethodView):
 
     @blp.arguments(RecipeSchema)
     @blp.response(200, RecipeResponseSchema)
-    def post(self, recipe_data):
-        required_fields = ['title', 'making_time', 'serves', 'ingredients', 'cost']
-        
-        missing_fields = [field for field in required_fields if field not in recipe_data]
-        if missing_fields:
-            return {
-                "message": "Recipe creation failed!",
-                "required": required_fields
-            }, 422
-        
+    def post(self, recipe_data):       
         recipe = RecipeModel(**recipe_data)
-        
-        try:
-            db.session.add(recipe)
-            db.session.commit()
-        except SQLAlchemyError:
-            db.session.rollback() 
-            return {
-                "message": "Recipe creation failed!",
-                "required": required_fields
-            }, 500
-        
+        db.session.add(recipe)
+        db.session.commit()
+      
         return {
             "message": "Recipe successfully created!",
             "recipe": [recipe]
@@ -90,4 +76,4 @@ def recipe_post_error(e):
     return {
         "message": "Recipe creation failed!",
         "required": "title, making_time, serves, ingredients, cost"
-        }
+        }, 400
