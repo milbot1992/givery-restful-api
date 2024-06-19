@@ -59,24 +59,35 @@ class RecipeList(MethodView):
     @blp.arguments(RecipeSchema)
     @blp.response(200, RecipeResponseSchema)
     def post(self, recipe_data):
+        required_fields = ['title', 'making_time', 'serves', 'ingredients', 'cost']
+        
+        missing_fields = [field for field in required_fields if field not in recipe_data]
+        if missing_fields:
+            return {
+                "message": "Recipe creation failed!",
+                "required": required_fields
+            }, 422
+        
         recipe = RecipeModel(**recipe_data)
+        
         try:
             db.session.add(recipe)
             db.session.commit()
         except SQLAlchemyError:
+            db.session.rollback() 
             return {
                 "message": "Recipe creation failed!",
-                "required": "title, making_time, serves, ingredients, cost"
+                "required": required_fields
             }, 500
+        
         return {
             "message": "Recipe successfully created!",
             "recipe": [recipe]
         }
-
-# Error handler for validation errors
-@blp.errorhandler(ValidationError)
-def handle_validation_error(e):
+    
+@blp.errorhandler(422)
+def recipe_post_error(e):
     return {
         "message": "Recipe creation failed!",
         "required": "title, making_time, serves, ingredients, cost"
-    }, 422
+        }
