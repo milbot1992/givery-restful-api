@@ -1,10 +1,9 @@
 from flask import Flask
 from flask_smorest import Api
-
 from db import db
 import models
 from resources.recipe import blp as RecipeBlueprint
-from resources.utils import insert_initial_data 
+from utils import insert_initial_data
 
 def create_app(db_url=None):
     app = Flask(__name__)
@@ -17,13 +16,16 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///data.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["PROPAGATE_EXCEPTIONS"] = True
-    
+
     db.init_app(app)
     api = Api(app)
 
     with app.app_context():
-        db.create_all()
-        insert_initial_data()
+        try:
+            db.create_all()
+            insert_initial_data()
+        except Exception as e:
+            print(f"Error during table creation or data insertion: {e}")
 
     api.register_blueprint(RecipeBlueprint)
 
