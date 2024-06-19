@@ -33,6 +33,6 @@ def test_patch_recipe(client, init_database):
 def test_delete_recipe(client, init_database):
     response = client.delete("/recipes/1")
     assert response.status_code == 200
-    assert response.json["message"] == "Recipe deleted."
+    assert response.json["message"] == "Recipe successfully removed!"
     response = client.get("/recipes/1")
     assert response.status_code == 404
