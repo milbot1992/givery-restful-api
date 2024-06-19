@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from db import db
 from models import RecipeModel
-from schemas import RecipeSchema, RecipeUpdateSchema, RecipeResponseSchema, RecipeListResponseSchema
+from schemas import RecipeSchema, RecipeUpdateSchema, RecipeResponseSchema, RecipeListResponseSchema, RecipePostResponseSchema
 
 blp = Blueprint("Recipes", "recipes", description="Operations on recipes")
 
@@ -58,12 +58,11 @@ class RecipeList(MethodView):
         }
 
     @blp.arguments(RecipeSchema)
-    @blp.response(200, RecipeResponseSchema)
+    @blp.response(200, RecipePostResponseSchema)
     def post(self, recipe_data):       
         recipe = RecipeModel(**recipe_data)
         db.session.add(recipe)
         db.session.commit()
-      
         return {
             "message": "Recipe successfully created!",
             "recipe": [recipe]
@@ -74,4 +73,4 @@ def recipe_post_error(e):
     return {
         "message": "Recipe creation failed!",
         "required": "title, making_time, serves, ingredients, cost"
-        }, 400
+    }, 400
