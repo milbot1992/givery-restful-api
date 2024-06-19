@@ -5,9 +5,13 @@ import models
 from resources.recipe import blp as RecipeBlueprint
 from resources.utils import insert_initial_data
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 def create_app(db_url=None):
     app = Flask(__name__)
+
+    CORS(app)
+
     app.config["API_TITLE"] = "Stores REST API"
     app.config["API_VERSION"] = "v1"
     app.config["OPENAPI_VERSION"] = "3.0.3"
