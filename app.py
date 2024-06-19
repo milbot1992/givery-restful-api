@@ -6,6 +6,7 @@ from resources.recipe import blp as RecipeBlueprint
 from resources.utils import insert_initial_data
 from flask_migrate import Migrate
 from flask_cors import CORS
+from marshmallow import ValidationError
 
 def create_app(db_url=None):
     app = Flask(__name__)
@@ -25,6 +26,13 @@ def create_app(db_url=None):
     db.init_app(app)
     migrate = Migrate(app, db)
     api = Api(app)
+
+    @app.errorhandler(ValidationError)
+    def handle_validation_error(e):
+        return {
+            "message": "Recipe creation failed!",
+            "required": "title, making_time, serves, ingredients, cost"
+        }, 422
 
     with app.app_context():
         try:

@@ -17,8 +17,7 @@ class RecipeUpdateSchema(Schema):
 
 class RecipeResponseSchema(Schema):
     message = fields.Str()
-    recipe = fields.Nested(RecipeSchema)
+    recipe = fields.List(fields.Nested(RecipeSchema))
 
 class RecipeListResponseSchema(Schema):
-    message = fields.Str()
     recipes = fields.List(fields.Nested(RecipeSchema))
