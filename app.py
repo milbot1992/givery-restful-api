@@ -25,7 +25,6 @@ def create_app(db_url=None):
     with app.app_context():
         try:
             db.create_all()
-            insert_initial_data()
         except Exception as e:
             print(f"Error during table creation or data insertion: {e}")
 
