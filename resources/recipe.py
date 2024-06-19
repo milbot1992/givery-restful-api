@@ -1,8 +1,6 @@
 from flask.views import MethodView
-from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import SQLAlchemyError
+from flask_smorest import Blueprint
 from werkzeug.exceptions import NotFound
-from marshmallow import ValidationError
 from sqlalchemy.orm.exc import NoResultFound
 
 from db import db
